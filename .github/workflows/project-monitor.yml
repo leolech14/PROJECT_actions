@@ -1,0 +1,207 @@
+name: 📊 Project Activity Monitor
+
+on:
+  schedule:
+    # Run every hour at minute 15
+    - cron: '15 * * * *'
+  
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update all projects'
+        required: false
+        type: boolean
+        default: false
+      
+      specific_project:
+        description: 'Monitor specific project (leave empty for all)'
+        required: false
+        type: string
+
+jobs:
+  monitor:
+    name: Monitor Project Activities
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: 🎯 Checkout Actions Repository
+        uses: actions/checkout@v4
+        with:
+          path: actions-repo
+      
+      - name: 📚 Checkout Projects Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/PROJECTS_all
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: projects
+          fetch-depth: 0  # Get full history for better tracking
+      
+      - name: 📝 Checkout Obsidian Vault
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/sprintx
+          token: ${{ secrets.VAULT_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+          path: vault
+      
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install python-dateutil
+      
+      - name: 🔍 Monitor Projects
+        id: monitor
+        env:
+          FORCE_UPDATE: ${{ inputs.force_update }}
+          SPECIFIC_PROJECT: ${{ inputs.specific_project }}
+        run: |
+          echo "🚀 Starting project monitoring..."
+          
+          # Copy monitoring script
+          cp actions-repo/scripts/project_monitor.py ./monitor.py
+          
+          # Modify paths for GitHub Actions environment
+          sed -i 's|~/PROJECTS_all|projects|g' monitor.py
+          sed -i 's|/Users/lech/Library/Mobile Documents/iCloud~md~obsidian/Documents/sprintx|vault|g' monitor.py
+          
+          # Run monitoring
+          if [ "$FORCE_UPDATE" = "true" ]; then
+            echo "Force updating all projects..."
+            rm -f vault/.project_monitor_state.json
+          fi
+          
+          if [ -n "$SPECIFIC_PROJECT" ]; then
+            echo "Monitoring specific project: $SPECIFIC_PROJECT"
+            python monitor.py --project "$SPECIFIC_PROJECT"
+          else
+            echo "Monitoring all projects..."
+            python monitor.py
+          fi
+          
+          # Capture changes
+          cd vault
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected in project files"
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes detected"
+          fi
+      
+      - name: 🔄 Rotate Logs
+        if: always()
+        run: |
+          if [ -f "actions-repo/scripts/rotate_logs.py" ]; then
+            cp actions-repo/scripts/rotate_logs.py ./rotate.py
+            sed -i 's|/Users/lech/Library/Mobile Documents/iCloud~md~obsidian/Documents/sprintx|vault|g' rotate.py
+            python rotate.py || echo "Log rotation completed with warnings"
+          fi
+      
+      - name: 📊 Generate Summary
+        if: always()
+        run: |
+          echo "## 📊 Project Monitoring Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Time**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "vault/.project_monitor.log" ]; then
+            echo "### Recent Activity" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 20 vault/.project_monitor.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "vault/log_rotation_report.json" ]; then
+            echo "### Log Status" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat vault/log_rotation_report.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 💾 Commit Changes
+        if: steps.monitor.outputs.changes_detected == 'true'
+        run: |
+          cd vault
+          
+          # Configure git
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          # Stage changes
+          git add PROJECT_*.md
+          git add .project_monitor_state.json
+          git add .project_monitor.log || true
+          git add log_rotation_report.json || true
+          
+          # Create commit message
+          COMMIT_MSG="🤖 Update project activity logs
+
+          Automated monitoring run at $(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          Updated projects with recent activity tracking.
+          View details in individual PROJECT_*.md files."
+          
+          # Commit
+          git commit -m "$COMMIT_MSG"
+          
+          # Push changes
+          git push origin main
+          
+          echo "✅ Changes committed and pushed successfully"
+      
+      - name: 📨 Create Summary Issue (Weekly)
+        if: github.event.schedule && contains('0 9 * * 1', github.event.schedule)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: 'sprintx',
+              title: `📊 Weekly Project Activity Report - ${date}`,
+              body: `## Weekly Project Activity Summary
+              
+              This is an automated weekly summary of project activities.
+              
+              ### Most Active Projects
+              Check the recent commits for detailed activity logs.
+              
+              ### Next Steps
+              - Review active projects
+              - Archive completed work
+              - Plan upcoming tasks
+              
+              ---
+              *Generated by GitHub Actions*`,
+              labels: ['automation', 'weekly-report']
+            });
+            console.log(`Created issue #${issue.data.number}`);
+      
+      - name: 🎉 Success Notification
+        if: success() && steps.monitor.outputs.changes_detected == 'true'
+        run: |
+          echo "✅ Project monitoring completed successfully!"
+          echo "📝 Check your Obsidian vault for updated project activity logs"
+
+  cleanup:
+    name: Cleanup Old Logs
+    runs-on: ubuntu-latest
+    needs: monitor
+    if: github.event.schedule && contains('0 0 * * 0', github.event.schedule)  # Weekly cleanup
+    
+    steps:
+      - name: 🧹 Clean Old Archives
+        run: |
+          echo "Running weekly cleanup..."
+          # Cleanup logic here

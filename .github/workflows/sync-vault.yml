@@ -1,0 +1,152 @@
+name: 🔄 Sync to Obsidian Vault
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+  
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  
+  workflow_dispatch:
+    inputs:
+      sync_type:
+        description: 'Type of sync'
+        required: true
+        type: choice
+        options:
+          - 'scripts-only'
+          - 'logs-only'
+          - 'full-sync'
+        default: 'full-sync'
+
+jobs:
+  sync:
+    name: Sync Changes to Vault
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 📥 Checkout Actions Repo
+        uses: actions/checkout@v4
+        with:
+          path: actions
+      
+      - name: 📚 Checkout Vault
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/sprintx
+          token: ${{ secrets.VAULT_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+          path: vault
+      
+      - name: 🔄 Sync Scripts
+        if: inputs.sync_type != 'logs-only'
+        run: |
+          echo "📝 Syncing scripts to vault..."
+          
+          # Copy monitoring scripts
+          cp -f actions/scripts/project_monitor.py vault/project_monitor.py || true
+          cp -f actions/scripts/rotate_logs.py vault/rotate_logs.py || true
+          
+          # Copy any additional scripts
+          for script in actions/scripts/*.py; do
+            if [ -f "$script" ]; then
+              filename=$(basename "$script")
+              echo "Copying $filename..."
+              cp -f "$script" "vault/$filename"
+            fi
+          done
+          
+          # Copy shell scripts
+          for script in actions/scripts/*.sh; do
+            if [ -f "$script" ]; then
+              filename=$(basename "$script")
+              echo "Copying $filename..."
+              cp -f "$script" "vault/$filename"
+              chmod +x "vault/$filename"
+            fi
+          done
+      
+      - name: 📊 Sync Logs
+        if: inputs.sync_type != 'scripts-only'
+        run: |
+          echo "📊 Syncing logs..."
+          
+          # This would sync logs from GitHub Actions artifacts if needed
+          # For now, logs are generated directly in the vault
+      
+      - name: 📝 Update Documentation
+        run: |
+          # Create sync status file
+          cat > vault/GITHUB_ACTIONS_SYNC.md << EOF
+          # GitHub Actions Sync Status
+          
+          ## Last Sync
+          - **Date**: $(date '+%Y-%m-%d %H:%M:%S UTC')
+          - **Type**: ${{ inputs.sync_type || 'scheduled' }}
+          - **Source**: [PROJECT_actions](https://github.com/${{ github.repository }})
+          
+          ## Synced Files
+          EOF
+          
+          # List synced files
+          cd vault
+          for file in project_monitor.py rotate_logs.py *.sh; do
+            if [ -f "$file" ]; then
+              echo "- $file" >> GITHUB_ACTIONS_SYNC.md
+            fi
+          done
+          
+          echo "" >> GITHUB_ACTIONS_SYNC.md
+          echo "---" >> GITHUB_ACTIONS_SYNC.md
+          echo "*Automated sync by GitHub Actions*" >> GITHUB_ACTIONS_SYNC.md
+      
+      - name: 💾 Commit and Push
+        run: |
+          cd vault
+          
+          # Configure git
+          git config user.name "GitHub Actions Sync"
+          git config user.email "actions@github.com"
+          
+          # Check for changes
+          if [ -n "$(git status --porcelain)" ]; then
+            # Stage all changes
+            git add -A
+            
+            # Commit
+            git commit -m "🔄 Sync from GitHub Actions
+            
+            Automated sync from PROJECT_actions repository
+            Type: ${{ inputs.sync_type || 'scheduled' }}
+            Time: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+            
+            # Push
+            git push origin main
+            
+            echo "✅ Changes synced successfully"
+          else
+            echo "ℹ️ No changes to sync"
+          fi
+      
+      - name: 📊 Generate Summary
+        if: always()
+        run: |
+          echo "## 🔄 Vault Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Time**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Type**: ${{ inputs.sync_type || 'scheduled' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Files Synced" >> $GITHUB_STEP_SUMMARY
+          cd vault
+          for file in project_monitor.py rotate_logs.py *.sh; do
+            if [ -f "$file" ]; then
+              echo "- ✅ $file" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
