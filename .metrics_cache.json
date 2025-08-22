@@ -1,7 +1,7 @@
 {
   "project_count": 35,
-  "recent_commits": 1,
-  "total_files": 15,
+  "recent_commits": 6,
+  "total_files": 9,
   "projects_monitored": 0,
   "total_modifications": 0,
   "recent_changes": 0,
@@ -12,8 +12,8 @@
     "python_scripts": 5,
     "shell_scripts": 0,
     "total_scripts": 5,
-    "repo_size": "400K"
+    "repo_size": "524K"
   },
-  "timestamp": "2025-08-22T02:08:42.814125",
-  "collection_time": "2025-08-22 02:08:42"
+  "timestamp": "2025-08-22T02:27:30.774373",
+  "collection_time": "2025-08-22 02:27:30"
 }

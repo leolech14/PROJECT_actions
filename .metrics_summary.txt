@@ -1,9 +1,9 @@
 **Metrics Collection Summary**
 
 - Projects monitored: 35
-- Total files: 15
+- Total files: 9
 
 **Repository Statistics:**
 - Workflows: 1/4 active
 - Scripts: 5
-- Repository size: 400K
+- Repository size: 524K
