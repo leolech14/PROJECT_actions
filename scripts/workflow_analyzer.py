@@ -5,8 +5,12 @@ Workflow Analyzer - Analyzes GitHub Actions workflow states
 
 import os
 import json
-import yaml
 import re
+try:
+    import yaml
+except ImportError:
+    # Will be installed by GitHub Actions
+    yaml = None
 from pathlib import Path
 from datetime import datetime
 
@@ -22,32 +26,35 @@ def log(message):
 
 def extract_workflow_name(content):
     """Extract workflow name from YAML content"""
-    try:
-        # Try to parse as YAML
-        data = yaml.safe_load(content)
-        if data and 'name' in data:
-            return data['name']
-    except:
-        # Fallback to regex
-        match = re.search(r'^name:\s*(.+)$', content, re.MULTILINE)
-        if match:
-            return match.group(1).strip().strip('"\'')
+    if yaml:
+        try:
+            # Try to parse as YAML
+            data = yaml.safe_load(content)
+            if data and 'name' in data:
+                return data['name']
+        except:
+            pass
+    # Fallback to regex
+    match = re.search(r'^name:\s*(.+)$', content, re.MULTILINE)
+    if match:
+        return match.group(1).strip().strip('"\'')
     return None
 
 def extract_schedule(content):
     """Extract schedule from workflow content"""
-    try:
-        data = yaml.safe_load(content)
-        if data and 'on' in data:
-            on_section = data['on']
-            if isinstance(on_section, dict) and 'schedule' in on_section:
-                schedule = on_section['schedule']
-                if isinstance(schedule, list) and len(schedule) > 0:
-                    cron = schedule[0].get('cron', '')
-                    # Parse cron expression to human-readable
-                    return parse_cron_to_human(cron)
-    except:
-        pass
+    if yaml:
+        try:
+            data = yaml.safe_load(content)
+            if data and 'on' in data:
+                on_section = data['on']
+                if isinstance(on_section, dict) and 'schedule' in on_section:
+                    schedule = on_section['schedule']
+                    if isinstance(schedule, list) and len(schedule) > 0:
+                        cron = schedule[0].get('cron', '')
+                        # Parse cron expression to human-readable
+                        return parse_cron_to_human(cron)
+        except:
+            pass
     
     # Fallback to regex
     match = re.search(r'cron:\s*[\'"]([^\'"]+)[\'"]', content)
@@ -234,13 +241,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    # Install PyYAML if not available (for GitHub Actions)
-    try:
-        import yaml
-    except ImportError:
-        import subprocess
-        log("Installing PyYAML...")
-        subprocess.run(['pip', 'install', 'pyyaml'], check=True)
-        import yaml
-    
     exit(main())
