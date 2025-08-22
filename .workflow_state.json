@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-22T02:08:35.170612",
+  "timestamp": "2025-08-22T02:18:03.379076",
   "workflow_count": 4,
   "active_count": 1,
   "workflows": [
@@ -15,8 +15,8 @@
       ],
       "has_schedule": true,
       "has_manual": true,
-      "file_size": 5267,
-      "last_modified": 1755839059.7210016
+      "file_size": 5320,
+      "last_modified": 1755839720.3254957
     },
     {
       "filename": "daily-summary.yml",

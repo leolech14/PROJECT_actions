@@ -50,7 +50,11 @@ jobs:
         id: analyze
         run: |
           echo "🔍 Analyzing workflow states..."
-          python scripts/workflow_analyzer.py
+          cd ${{ github.workspace }}
+          pwd
+          ls -la
+          ls -la scripts/
+          python3 scripts/workflow_analyzer.py || exit 1
           
           # Check if state file exists
           if [ -f ".workflow_state.json" ]; then
@@ -65,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "📊 Collecting project metrics..."
-          python scripts/metrics_collector.py
+          python3 ${{ github.workspace }}/scripts/metrics_collector.py
           
           # Capture metrics summary
           if [ -f ".metrics_summary.json" ]; then
@@ -81,7 +85,7 @@ jobs:
           FORCE_UPDATE: ${{ inputs.force_update }}
         run: |
           echo "📝 Generating updated README..."
-          python scripts/readme_generator.py
+          python3 ${{ github.workspace }}/scripts/readme_generator.py
           
           # Check if README was modified
           if [ -n "$(git status --porcelain README.md)" ]; then
