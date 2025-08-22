@@ -1,19 +1,19 @@
 {
   "project_count": 35,
-  "recent_commits": 6,
-  "total_files": 9,
+  "recent_commits": 11,
+  "total_files": 11,
   "projects_monitored": 0,
   "total_modifications": 0,
   "recent_changes": 0,
   "repository_stats": {
     "workflow_count": 4,
-    "active_workflows": 1,
-    "disabled_workflows": 3,
+    "active_workflows": 4,
+    "disabled_workflows": 0,
     "python_scripts": 5,
     "shell_scripts": 0,
     "total_scripts": 5,
-    "repo_size": "524K"
+    "repo_size": "632K"
   },
-  "timestamp": "2025-08-22T02:27:30.774373",
-  "collection_time": "2025-08-22 02:27:30"
+  "timestamp": "2025-08-22T02:58:08.856946",
+  "collection_time": "2025-08-22 02:58:08"
 }
