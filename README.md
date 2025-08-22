@@ -2,6 +2,13 @@
 
 > Centralized GitHub Actions for automating project monitoring, maintenance, and reporting across all repositories.
 
+<!-- AUTO-GENERATED:BADGES:START -->
+![Workflow Status](https://img.shields.io/badge/workflows-1%2F4_active-yellow?style=for-the-badge)
+![Last Update](https://img.shields.io/badge/updated-2025--08--22_02:08-blue?style=for-the-badge)
+![Projects](https://img.shields.io/badge/projects-35_monitored-green?style=for-the-badge)
+![Automation Health](https://img.shields.io/badge/health-25%25-red?style=for-the-badge)
+<!-- AUTO-GENERATED:BADGES:END -->
+
 ## 🎯 Purpose
 
 This repository contains GitHub Actions workflows that automate various tasks across my development projects:
@@ -11,25 +18,41 @@ This repository contains GitHub Actions workflows that automate various tasks ac
 - 📈 Analytics and reporting
 - 🧹 Maintenance tasks
 
-## 🚀 Active Workflows
+## 🚀 Workflow Status
 
-### 1. Project Monitor (`project-monitor.yml`)
-- **Schedule**: Every hour
-- **Purpose**: Tracks last 20 edits across all projects
-- **Output**: Updates markdown files in Obsidian vault
-- **Trigger**: Hourly + manual dispatch
+<!-- AUTO-GENERATED:STATUS:START -->
+| Workflow | Status | Schedule | Last Run | Success Rate | Actions |
+|----------|--------|----------|----------|--------------|---------|
+| **📝 Update README** | 🟢 Active | `Every 4 hours` | N/A | N/A | [View Runs](../../actions/workflows/update-readme.yml) |
+| **📅 Daily Activity Summary** | 🔴 Disabled | `Daily at 9 AM` | N/A | N/A | [Enable](.github/workflows/daily-summary.yml) |
+| **📊 Project Activity Monitor** | 🔴 Disabled | `Hourly at :15` | N/A | N/A | [Enable](.github/workflows/project-monitor.yml) |
+| **🔄 Sync to Obsidian Vault** | 🔴 Disabled | `Every 6 hours` | N/A | N/A | [Enable](.github/workflows/sync-vault.yml) |
 
-### 2. Daily Summary (`daily-summary.yml`)
-- **Schedule**: Daily at 9 AM
-- **Purpose**: Creates daily activity summary
-- **Output**: Summary report in vault
-- **Trigger**: Daily + manual dispatch
+### ⚠️ Attention Required
+- **3 workflows currently disabled** - [View disabled workflows](.github/workflows/)
+<!-- AUTO-GENERATED:STATUS:END -->
 
-### 3. Sync to Vault (`sync-vault.yml`)
-- **Schedule**: Every 6 hours
-- **Purpose**: Syncs changes to Obsidian vault
-- **Output**: Commits to vault repository
-- **Trigger**: Push + schedule + manual
+## 📈 Metrics Dashboard
+
+<!-- AUTO-GENERATED:METRICS:START -->
+### 🎯 Project Statistics
+| Metric | Value | Trend |
+|--------|-------|-------|
+| **Active Projects** | 35 | - |
+| **Files Tracked** | 15 | - |
+<!-- AUTO-GENERATED:METRICS:END -->
+
+## 📝 Recent Activity
+
+<!-- AUTO-GENERATED:ACTIVITY:START -->
+### 🔄 Recent Commits
+| Time | Hash | Message | Author |
+|------|------|---------|--------|
+| 7 hours ago | `ebb7da0` | 🚫 Disable all GitHub Actions workflows | leolech14 |
+| 4 days ago | `3d64c91` | 🔧 Add GitHub Actions workflows | leolech14 |
+| 4 days ago | `8f7e652` | Temporarily remove workflows to push initial code | leolech14 |
+| 4 days ago | `0734bca` | 🎉 Initial commit - GitHub Actions automation syste | leolech14 |
+<!-- AUTO-GENERATED:ACTIVITY:END -->
 
 ## 📁 Repository Structure
 
@@ -190,3 +213,6 @@ MIT License - See [LICENSE](LICENSE) file
 **Automated with ❤️ by GitHub Actions**
 
 *Last Updated: 2025-08-17*
+---
+
+*Last automated update: 2025-08-22 02:08:50 UTC*

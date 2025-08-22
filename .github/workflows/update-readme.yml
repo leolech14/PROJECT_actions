@@ -1,0 +1,165 @@
+name: 📝 Update README
+
+on:
+  schedule:
+    # Run every 4 hours
+    - cron: '0 */4 * * *'
+  
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - '!README.md'  # Don't trigger on README changes to avoid loops
+  
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes detected'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  update-readme:
+    name: Update README with Live Data
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history for better git analysis
+      
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install requests pyyaml
+      
+      - name: 🔍 Analyze Workflows
+        id: analyze
+        run: |
+          echo "🔍 Analyzing workflow states..."
+          python scripts/workflow_analyzer.py
+          
+          # Check if state file exists
+          if [ -f ".workflow_state.json" ]; then
+            echo "workflow_state_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "workflow_state_exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📊 Collect Metrics
+        id: metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "📊 Collecting project metrics..."
+          python scripts/metrics_collector.py
+          
+          # Capture metrics summary
+          if [ -f ".metrics_summary.json" ]; then
+            echo "metrics_collected=true" >> $GITHUB_OUTPUT
+          else
+            echo "metrics_collected=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📝 Generate README
+        id: generate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_UPDATE: ${{ inputs.force_update }}
+        run: |
+          echo "📝 Generating updated README..."
+          python scripts/readme_generator.py
+          
+          # Check if README was modified
+          if [ -n "$(git status --porcelain README.md)" ]; then
+            echo "readme_changed=true" >> $GITHUB_OUTPUT
+            echo "✅ README has been updated"
+          else
+            echo "readme_changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes to README detected"
+          fi
+      
+      - name: 📊 Generate Summary
+        if: always()
+        run: |
+          echo "## 📝 README Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Time**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.generate.outputs.readme_changed }}" = "true" ]; then
+            echo "✅ **Status**: README successfully updated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **Status**: No updates needed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Workflow Analysis" >> $GITHUB_STEP_SUMMARY
+          if [ -f ".workflow_summary.txt" ]; then
+            cat .workflow_summary.txt >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Metrics Collection" >> $GITHUB_STEP_SUMMARY
+          if [ -f ".metrics_summary.txt" ]; then
+            cat .metrics_summary.txt >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 💾 Commit Changes
+        if: steps.generate.outputs.readme_changed == 'true'
+        run: |
+          # Configure git
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          # Stage README
+          git add README.md
+          
+          # Also stage state files if they exist
+          [ -f ".workflow_state.json" ] && git add .workflow_state.json
+          [ -f ".metrics_cache.json" ] && git add .metrics_cache.json
+          
+          # Create commit message
+          COMMIT_MSG="📝 Auto-update README with live data
+
+          Updated sections:
+          - Workflow status badges
+          - Active/disabled workflow table
+          - Project metrics
+          - Recent activity
+          
+          Triggered by: ${{ github.event_name }}
+          Time: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+          
+          # Commit
+          git commit -m "$COMMIT_MSG"
+          
+          # Push changes
+          git push origin main
+          
+          echo "✅ Changes committed and pushed successfully"
+      
+      - name: 🎉 Success Notification
+        if: success() && steps.generate.outputs.readme_changed == 'true'
+        run: |
+          echo "✅ README has been automatically updated!"
+          echo "📊 View the updated README at: https://github.com/${{ github.repository }}"
+      
+      - name: 🚨 Error Handling
+        if: failure()
+        run: |
+          echo "❌ README update failed!"
+          echo "Check the workflow logs for details"
+          exit 1
