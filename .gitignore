@@ -4,35 +4,28 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 venv/
-.venv
+ENV/
 
-# Logs
-*.log
-.project_monitor_state.json
-monitor_logs_archive/
-log_rotation_report.json
+# macOS
+.DS_Store
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-.DS_Store
 
-# Secrets
-.env
-.env.local
-secrets.yml
+# Logs
+*.log
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Temporary
+# Temporary files
 *.tmp
 *.bak
 *.backup
-*~
+
+# State files (optional - remove these lines if you want to track state)
+# .workflow_state.json
+# .metrics_cache.json
+# .workflow_summary.txt
+# .metrics_summary.txt
