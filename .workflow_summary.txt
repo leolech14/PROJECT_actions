@@ -1,9 +1,9 @@
 **Total Workflows**: 4
-**Active**: 2
-**Disabled**: 2
+**Active**: 4
+**Disabled**: 0
 
 **Workflow Details:**
+- ✅ **📅 Daily Activity Summary** (schedule, manual)
 - ✅ **📊 Project Activity Monitor** (schedule, manual)
 - ✅ **📝 Update README** (schedule, push, manual)
-- ❌ **📅 Daily Activity Summary** (schedule, manual)
-- ❌ **🔄 Sync to Obsidian Vault** (schedule, push, manual)
+- ✅ **🔄 Sync to Obsidian Vault** (schedule, push, manual)

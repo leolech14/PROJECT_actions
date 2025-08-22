@@ -1,8 +1,22 @@
 {
-  "timestamp": "2025-08-22T02:43:01.026876",
+  "timestamp": "2025-08-22T02:43:47.380149",
   "workflow_count": 4,
-  "active_count": 2,
+  "active_count": 4,
   "workflows": [
+    {
+      "filename": "daily-summary.yml",
+      "name": "\ud83d\udcc5 Daily Activity Summary",
+      "enabled": true,
+      "schedule": "Daily at 9 AM",
+      "triggers": [
+        "schedule",
+        "manual"
+      ],
+      "has_schedule": true,
+      "has_manual": true,
+      "file_size": 6689,
+      "last_modified": 1755457119.6557627
+    },
     {
       "filename": "project-monitor.yml",
       "name": "\ud83d\udcca Project Activity Monitor",
@@ -33,23 +47,9 @@
       "last_modified": 1755840335.2856827
     },
     {
-      "filename": "daily-summary.yml",
-      "name": "\ud83d\udcc5 Daily Activity Summary",
-      "enabled": false,
-      "schedule": "Daily at 9 AM",
-      "triggers": [
-        "schedule",
-        "manual"
-      ],
-      "has_schedule": true,
-      "has_manual": true,
-      "file_size": 6689,
-      "last_modified": 1755457119.6557627
-    },
-    {
       "filename": "sync-vault.yml",
       "name": "\ud83d\udd04 Sync to Obsidian Vault",
-      "enabled": false,
+      "enabled": true,
       "schedule": "Every 6 hours",
       "triggers": [
         "schedule",

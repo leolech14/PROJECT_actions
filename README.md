@@ -3,10 +3,10 @@
 > Centralized GitHub Actions for automating project monitoring, maintenance, and reporting across all repositories.
 
 <!-- AUTO-GENERATED:BADGES:START -->
-![Workflow Status](https://img.shields.io/badge/workflows-2%2F4_active-yellow?style=for-the-badge)
+![Workflow Status](https://img.shields.io/badge/workflows-4_active-green?style=for-the-badge)
 ![Last Update](https://img.shields.io/badge/updated-2025--08--22_02:43-blue?style=for-the-badge)
 ![Projects](https://img.shields.io/badge/projects-35_monitored-green?style=for-the-badge)
-![Automation Health](https://img.shields.io/badge/health-50%25-orange?style=for-the-badge)
+![Automation Health](https://img.shields.io/badge/health-100%25-green?style=for-the-badge)
 <!-- AUTO-GENERATED:BADGES:END -->
 
 ## 🎯 Purpose
@@ -23,13 +23,10 @@ This repository contains GitHub Actions workflows that automate various tasks ac
 <!-- AUTO-GENERATED:STATUS:START -->
 | Workflow | Status | Schedule | Last Run | Success Rate | Actions |
 |----------|--------|----------|----------|--------------|---------|
+| **📅 Daily Activity Summary** | 🟢 Active | `Daily at 9 AM` | N/A | N/A | [View Runs](../../actions/workflows/daily-summary.yml) |
 | **📊 Project Activity Monitor** | 🟢 Active | `Hourly at :15` | N/A | N/A | [View Runs](../../actions/workflows/project-monitor.yml) |
 | **📝 Update README** | 🟢 Active | `Every 4 hours` | N/A | N/A | [View Runs](../../actions/workflows/update-readme.yml) |
-| **📅 Daily Activity Summary** | 🔴 Disabled | `Daily at 9 AM` | N/A | N/A | [Enable](.github/workflows/daily-summary.yml) |
-| **🔄 Sync to Obsidian Vault** | 🔴 Disabled | `Every 6 hours` | N/A | N/A | [Enable](.github/workflows/sync-vault.yml) |
-
-### ⚠️ Attention Required
-- **2 workflows currently disabled** - [View disabled workflows](.github/workflows/)
+| **🔄 Sync to Obsidian Vault** | 🟢 Active | `Every 6 hours` | N/A | N/A | [View Runs](../../actions/workflows/sync-vault.yml) |
 <!-- AUTO-GENERATED:STATUS:END -->
 
 ## 📈 Metrics Dashboard
@@ -48,11 +45,11 @@ This repository contains GitHub Actions workflows that automate various tasks ac
 ### 🔄 Recent Commits
 | Time | Hash | Message | Author |
 |------|------|---------|--------|
+| 15 seconds ago | `e6106de` | ✅ Test workflow enable/disable detection | leolech14 |
 | 6 minutes ago | `27f4b72` | 📝 Manual README update (billing issue) | leolech14 |
-| 17 minutes ago | `ac8a040` | 🐛 Add comprehensive debugging to workflow | leolech14 |
+| 18 minutes ago | `ac8a040` | 🐛 Add comprehensive debugging to workflow | leolech14 |
 | 19 minutes ago | `f9110e7` | 🔧 Fix workflow script execution | leolech14 |
-| 25 minutes ago | `fc4d1a8` | 📝 Add .gitignore file | leolech14 |
-| 27 minutes ago | `7a87f39` | 🐛 Fix workflow dependencies and YAML handling | leolech14 |
+| 26 minutes ago | `fc4d1a8` | 📝 Add .gitignore file | leolech14 |
 <!-- AUTO-GENERATED:ACTIVITY:END -->
 
 ## 📁 Repository Structure
@@ -216,4 +213,4 @@ MIT License - See [LICENSE](LICENSE) file
 *Last Updated: 2025-08-17*
 ---
 
-*Last automated update: 2025-08-22 02:43:12 UTC*
+*Last automated update: 2025-08-22 02:43:47 UTC*
